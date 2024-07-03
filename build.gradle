@@ -1,0 +1,81 @@
+plugins {
+    id 'scala'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '7.1.0'
+}
+
+version = '1.0.0'
+
+repositories {
+    maven {
+        url "https://maven.aliyun.com/repository/public"
+    }
+}
+
+
+ext.scalaShortVersion = '2.12'
+ext.scalaVersion = '2.12.18'
+ext.akkaVersion = '2.6.20'
+ext.catCoreVersion = '2.6.1'
+
+ext.akkaHttpVersion = '10.2.10'
+ext.mangodbVersion = '3.1.1'
+ext.logbackVersion = '1.1.7'
+
+ext.jodaVersion = '2.7.3'
+ext.json4sVersion = '3.2.11' //3.3.0 map:unsupport invalid char to json
+ext.jacksonVersion = '2.15.2'
+
+ext.scalatraVersion = '2.7.1'
+ext.scalatestVersion = '3.2.16'
+ext.scalaCheckVersion = '1.17.0'
+ext.scoverageVersion = "2.0.10"
+
+
+dependencies {
+    implementation "org.scala-lang:scala-library:$scalaVersion"
+    implementation "com.typesafe.akka:akka-actor_$scalaShortVersion:$akkaVersion"
+    implementation "com.typesafe.akka:akka-http-core_$scalaShortVersion:$akkaHttpVersion"
+    implementation "com.typesafe.akka:akka-http_$scalaShortVersion:$akkaHttpVersion"
+    implementation "com.typesafe.akka:akka-stream_$scalaShortVersion:$akkaVersion"
+    implementation "com.typesafe.akka:akka-http-caching_$scalaShortVersion:$akkaHttpVersion"
+    implementation "com.typesafe.akka:akka-http-spray-json_$scalaShortVersion:$akkaHttpVersion"
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-joda:$jodaVersion"
+    implementation "org.json4s:json4s-native_$scalaShortVersion:$json4sVersion"
+    implementation "com.fasterxml.jackson.module:jackson-module-scala_$scalaShortVersion:$jacksonVersion"
+    implementation "ch.qos.logback:logback-classic:$logbackVersion"
+    implementation "org.slf4j:slf4j-api:1.7.32"
+    implementation "com.typesafe.akka:akka-slf4j_$scalaShortVersion:$akkaVersion"
+}
+
+
+application {
+    mainClassName = 'Mains'
+}
+
+sourceSets {
+    main {
+        resources {
+            include 'reference.conf'
+        }
+    }
+}
+
+
+shadowJar {
+    archiveBaseName = "HTTPSProxyProject"
+    archiveVersion = "${project.version}"
+    archiveClassifier = ''
+    manifest {
+        attributes 'Main-Class': 'Mains'
+    }
+    from sourceSets.main.output
+    configurations = [project.configurations.runtimeClasspath]
+    from sourceSets.main.resources
+    doFirst {
+        println manifest.attributes.entrySet().join("\n")
+    }
+    append 'reference.conf'
+    append 'version.conf'
+    with jar
+}
